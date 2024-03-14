@@ -50,10 +50,69 @@ export const getMovies = async (req, res) => {
     movie.actors = actorsFiltered
   }
 
-  res.json(movies)
+  res.json(movies[0])
 }
 
 export const getMovie = async (req, res) => {
   const { id } = req.params
   res.json({ id })
+}
+
+export const updateMoviePut = async (req, res) => {
+  const { id } = req.params
+  const isInteger = Number.isInteger(parseInt(id))
+  if (!isInteger) {
+    return res.status(400).json({ message: 'El ID debe ser un número entero.' })
+  }
+
+  const { title, media_type_id: mediaTypeId, year_released: yearReleased, price } = req.body
+  if (!title || !mediaTypeId || !yearReleased || !price) {
+    return res.status(400).json({ message: 'Faltan datos.' })
+  }
+
+  const sql = 'UPDATE movies SET title= ?, media_type_id= ?, year_released= ?, price= ? WHERE id= ?;'
+
+  await pool.execute(sql, [title, mediaTypeId, yearReleased, price, id])
+
+  return res.json({ message: 'Movie updated!' })
+}
+
+export const updateMoviePatch = async (req, res) => {
+  const { id } = req.params
+  const isInteger = Number.isInteger(parseInt(id))
+  if (!isInteger) {
+    return res.status(400).json({ message: 'El ID debe ser un número entero.' })
+  }
+
+  const { title, media_type_id: mediaTypeId, year_released: yearReleased, price } = req.body
+
+  let sql = 'UPDATE movies SET'
+  const dataToUpdate = []
+
+  if (title) {
+    sql += ' title= ?'
+    dataToUpdate.push(title)
+  }
+
+  if (mediaTypeId) {
+    sql += ', media_type_id= ?,'
+    dataToUpdate.push(mediaTypeId)
+  }
+
+  if (yearReleased) {
+    sql += ', year_released= ?,'
+    dataToUpdate.push(yearReleased)
+  }
+
+  if (price) {
+    sql += ', price= ?'
+    dataToUpdate.push(price)
+  }
+
+  sql += ' WHERE id= ?;'
+  dataToUpdate.push(id)
+
+  await pool.execute(sql, dataToUpdate)
+
+  return res.json({ message: 'Movie updated!' })
 }

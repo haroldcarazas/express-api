@@ -1,5 +1,5 @@
 import express from 'express'
-import { createUsuario, getMovie, getMovies, getUsuarios } from './controller.js'
+import { createUsuario, getMovie, getMovies, getUsuarios, updateMoviePatch, updateMoviePut } from './controller.js'
 
 const app = express()
 app.use(express.json()) // Para poder recibir JSON en las peticiones HTTP
@@ -18,5 +18,11 @@ app.get('/movies', getMovies)
 
 // Mostrar una película
 app.get('/movies/:id', getMovie)
+
+// Actualizar completamente una película
+app.put('/movies/:id', updateMoviePut)
+
+// Actualizar parcialmente una película
+app.patch('/movies/:id', updateMoviePatch)
 
 app.listen(3000, () => console.log('Servidor levantado!'))
